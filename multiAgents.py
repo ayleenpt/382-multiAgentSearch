@@ -161,32 +161,29 @@ class MinimaxAgent(MultiAgentSearchAgent):
             
             if agentIndex == 0: # maximize for pacman
                 bestValue = float("-inf")
+                bestAction = None
                 for action in state.getLegalActions(agentIndex):
                     successor = state.generateSuccessor(agentIndex, action)
                     value = minimax(successor, depth + 1, 1)
-                    bestValue = max(bestValue, value)
+                    if value > bestValue:
+                        bestValue = value
+                        bestAction = action
+                if depth == 0: # return action only at level 0
+                    return bestAction
                 return bestValue
             
             else: # minimize for ghosts
                 bestValue = float("inf")
                 for action in state.getLegalActions(agentIndex):
                     successor = state.generateSuccessor(agentIndex, action)
-                    if agentIndex == state.getNumAgents() - 1:
+                    if agentIndex == (state.getNumAgents() - 1):
                         value = minimax(successor, depth, 0)
                     else:
                         value = minimax(successor, depth, agentIndex + 1)
                     bestValue = min(bestValue, value)
                 return bestValue
         
-        bestScore = float("-inf")
-        bestAction = None
-        for action in gameState.getLegalActions(0):
-            successor = gameState.generateSuccessor(0, action)
-            value = minimax(successor, 1, 1)
-            if value > bestScore:
-                bestScore = value
-                bestAction = action
-        return bestAction
+        return minimax(gameState, 0, 0)
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):

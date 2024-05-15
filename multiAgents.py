@@ -154,33 +154,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
+        "*** YOUR CODE HERE ***"
         def minimax(state, depth, agentIndex):
-            if depth == 0 or state.isWin() or state.isLose():
-                return self.evaluationFunction(state), None
+            if depth == self.depth or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
             
-            if agentIndex == 0: # Maximize for Pacman
-                bestValue = float("-inf")
-                bestAction = None
-                for action in state.getLegalActions(agentIndex):
-                    successorState = state.generateSuccessor(agentIndex, action)
-                    value, _ = minimax(successorState, depth, agentIndex + 1)
-                    if value > bestValue:
-                        bestValue = value
-                        bestAction = action
-                return bestValue, bestAction
-            
-            else:
-                nextAgentIndex = ((agentIndex + 1) % state.getNumAgents())
+            if agentIndex == 0: # maximize for pacman
                 bestValue = float("-inf")
                 for action in state.getLegalActions(agentIndex):
-                  successorState = state.generateSuccessor(agentIndex, action)
-                  value, _ = minimax(successorState, (depth - 1), nextAgentIndex)
-                  bestValue = min(bestValue, value)
-                return bestValue, None
+                    successor = state.generateSuccessor(agentIndex, action)
+                    value = minimax(successor, depth + 1, 1)
+                    bestValue = max(bestValue, value)
+                return bestValue
+            
+            else: # minimize for ghosts
+                bestValue = float("inf")
+                for action in state.getLegalActions(agentIndex):
+                    successor = state.generateSuccessor(agentIndex, action)
+                    if agentIndex == state.getNumAgents() - 1:
+                        value = minimax(successor, depth, 0)
+                    else:
+                        value = minimax(successor, depth, agentIndex + 1)
+                    bestValue = min(bestValue, value)
+                return bestValue
         
-        _, action = minimax(gameState, self.depth, 0)
-        return action
-            
+        bestScore = float("-inf")
+        bestAction = None
+        for action in gameState.getLegalActions(0):
+            successor = gameState.generateSuccessor(0, action)
+            value = minimax(successor, 1, 1)
+            if value > bestScore:
+                bestScore = value
+                bestAction = action
+        return bestAction
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):

@@ -164,7 +164,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 bestAction = None
                 for action in state.getLegalActions(agentIndex):
                     successor = state.generateSuccessor(agentIndex, action)
-                    value = minimax(successor, depth + 1, 1)
+                    value = minimax(successor, depth, 1)
                     if value > bestValue:
                         bestValue = value
                         bestAction = action
@@ -177,9 +177,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 for action in state.getLegalActions(agentIndex):
                     successor = state.generateSuccessor(agentIndex, action)
                     if agentIndex == (state.getNumAgents() - 1):
-                        value = minimax(successor, depth, 0)
+                        value = minimax(successor, (depth + 1), 0)
                     else:
-                        value = minimax(successor, depth, agentIndex + 1)
+                        value = minimax(successor, depth, (agentIndex + 1))
                     bestValue = min(bestValue, value)
                 return bestValue
         

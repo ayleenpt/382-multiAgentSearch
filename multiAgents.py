@@ -291,7 +291,7 @@ def betterEvaluationFunction(currentGameState):
     Calculates a score based on Pacman's position, the positions of the food
     pellets, ghosts, capsules, and Pacman's current score. It prioritizes
     actions that move Pacman closer to food pellets, capsules, and scared
-    ghosts, while avoiding actions that lead Pacman towards dangerous ghosts..
+    ghosts, while avoiding actions that lead Pacman towards dangerous ghosts.
 
     """
     # Extracting useful information from the current game state

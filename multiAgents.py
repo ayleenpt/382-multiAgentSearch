@@ -252,8 +252,36 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def expectimax(state, depth, agentIndex):
+            if depth == self.depth or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+            
+            if agentIndex == 0: # maximize for pacman
+                bestValue = float("-inf")
+                bestAction = None
+                for action in state.getLegalActions(agentIndex):
+                    successor = state.generateSuccessor(agentIndex, action)
+                    value = expectimax(successor, depth, 1)
+                    if value > bestValue:
+                        bestValue = value
+                        bestAction = action
+                if depth == 0: # return action only at level 0
+                    return bestAction
+                return bestValue
+            
+            else: # take average for ghosts
+                value = 0
+                count = 0
+                for action in state.getLegalActions(agentIndex):
+                    successor = state.generateSuccessor(agentIndex, action)
+                    if agentIndex == (state.getNumAgents() - 1):
+                        value += expectimax(successor, (depth + 1), 0)
+                    else:
+                        value += expectimax(successor, depth, (agentIndex + 1))
+                    count += 1
+                return (value / count)
+        
+        return expectimax(gameState, 0, 0)
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -262,8 +290,49 @@ def betterEvaluationFunction(currentGameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Extracting useful information from the current game state
+    pacmanPosition = currentGameState.getPacmanPosition()
+    foodGrid = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+    capsules = currentGameState.getCapsules()
+    score = currentGameState.getScore()
+
+    # Initialize the evaluation score
+    evalScore = score
+
+    # Distance to the closest food pellet
+    closestFoodDist = float('inf')
+    for food in foodGrid.asList():
+        dist = util.manhattanDistance(pacmanPosition, food)
+        if dist < closestFoodDist:
+            closestFoodDist = dist
+
+    # Check if the closest ghost is scared
+    closestGhostDist = float('inf')
+    for ghostState in ghostStates:
+        dist = util.manhattanDistance(pacmanPosition, ghostState.getPosition())
+        if dist < closestGhostDist:
+            closestGhostDist = dist
+
+    if closestGhostDist < 2 and not any(scaredTimes):
+        evalScore -= 100  # Avoid ghosts if they are too close and not scared
+    elif closestGhostDist > 2 and closestFoodDist != float('inf'):
+        evalScore += 1.0 / closestFoodDist  # Prioritize moving closer to food
+    elif any(scaredTimes):
+        evalScore += 100  # Chase scared ghosts
+
+    # Distance to the closest capsule
+    closestCapsuleDist = float('inf')
+    for capsule in capsules:
+        dist = util.manhattanDistance(pacmanPosition, capsule)
+        if dist < closestCapsuleDist:
+            closestCapsuleDist = dist
+
+    if closestCapsuleDist != float('inf'):
+        evalScore += 10.0 / closestCapsuleDist  # Prioritize moving closer to capsules
+
+    return evalScore
 
 # Abbreviation
 better = betterEvaluationFunction

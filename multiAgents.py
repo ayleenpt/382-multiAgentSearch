@@ -185,7 +185,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         
         return minimax(gameState, 0, 0)
 
-
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -195,8 +194,51 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def alpha_beta_search(state):
+            alpha = float("-inf")
+            beta = float("inf")
+            bestValue = float("-inf")
+            bestAction = None
+
+            for action in state.getLegalActions(0):  # Assuming Pacman is always agent 0
+                successor = state.generateSuccessor(0, action)
+                value = min_value(successor, 1, 0, alpha, beta)
+                if value > bestValue:
+                    bestValue = value
+                    bestAction = action
+                alpha = max(alpha, bestValue)
+            return bestAction
+
+        def max_value(state, depth, alpha, beta):
+            if depth == self.depth or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            v = float("-inf")
+            for action in state.getLegalActions(0):
+                successor = state.generateSuccessor(0, action)
+                v = max(v, min_value(successor, 1, depth, alpha, beta))
+                if v > beta:
+                    return v
+                alpha = max(alpha, v)
+            return v
+
+        def min_value(state, ghostIndex, depth, alpha, beta):
+            if state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
+
+            v = float("inf")
+            for action in state.getLegalActions(ghostIndex):
+                successor = state.generateSuccessor(ghostIndex, action)
+                if ghostIndex == state.getNumAgents() - 1:
+                    v = min(v, max_value(successor, depth + 1, alpha, beta))
+                else:
+                    v = min(v, min_value(successor, ghostIndex + 1, depth, alpha, beta))
+                if v < alpha:
+                    return v
+                beta = min(beta, v)
+            return v
+
+        return alpha_beta_search(gameState)
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """

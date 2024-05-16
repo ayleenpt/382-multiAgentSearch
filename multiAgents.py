@@ -288,7 +288,11 @@ def betterEvaluationFunction(currentGameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    Calculates a score based on Pacman's position, the positions of the food
+    pellets, ghosts, capsules, and Pacman's current score. It prioritizes
+    actions that move Pacman closer to food pellets, capsules, and scared
+    ghosts, while avoiding actions that lead Pacman towards dangerous ghosts..
+
     """
     # Extracting useful information from the current game state
     pacmanPosition = currentGameState.getPacmanPosition()
